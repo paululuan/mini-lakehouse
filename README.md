@@ -22,8 +22,8 @@ docker compose version
 ```
 airflow/
 ├── dags/                                     # Suas DAGs ficam aqui
-│   └── <dag_context_load_frequency>/        # Pasta de cada DAG (padrão: dag+contexto+carga+frequência)
-│       ├── <dag_context_load_frequency>.py  # Código da DAG
+│   └── <dag_context_load_frequency>/         # Pasta de cada DAG (padrão: dag+contexto+carga+frequência)
+│       ├── <dag_context_load_frequency>.py   # Código da DAG
 │       ├── dev.json                          # Configurações do ambiente Dev
 │       └── prd.json                          # Configurações do ambiente PRD
 ├── logs/                                     # Logs gerados pelo Airflow (ignorado no Git)
@@ -79,23 +79,30 @@ docker compose down
 🔹 Exemplo de dev.json e prd.json
 
 // dev.json
+```json
 {
-  "schedule_interval": null,
-  "raw_project": "sandbox-usuario",
-  "bronze_project": "sandbox-usuario",
-  "silver_project": "sandbox-usuario",
-  "gold_project": "sandbox-usuario"
+    "dag_context_load_frequency": {
+        "schedule_interval": null,
+        "raw_project": "sandbox-usuario",
+        "bronze_project": "sandbox-usuario",
+        "silver_project": "sandbox-usuario",
+        "gold_project": "sandbox-usuario"
+    }
 }
+```
 
 // prd.json
+```json
 {
-  "schedule_interval": "0 8 * * *",
-  "raw_project": "raw-layer-prd",
-  "bronze_project": "bronze-layer-prd",
-  "silver_project": "silver-layer-prd",
-  "gold_project": "gold-layer-prd"
+    "dag_context_load_frequency": {
+        "schedule_interval": null,
+        "raw_project": "raw-layer",
+        "bronze_project": "bronze-layer",
+        "silver_project": "silver-layer",
+        "gold_project": "gold-layer"
+    }
 }
-
+```
     A DAG deve ler dinamicamente o JSON correto com base na variável ENVIRONMENT definida no container.
 
 🔹 Próximos passos sugeridos
