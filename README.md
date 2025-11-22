@@ -15,9 +15,11 @@ Em sistemas Linux, verifique as versões instaladas:
 ```bash
 docker --version
 docker compose version
+```
 
 📂 Estrutura do Projeto
 
+```
 airflow/
 ├── dags/                                     # Suas DAGs ficam aqui
 │   └── <dag_context_load_frequency>/        # Pasta de cada DAG (padrão: dag+contexto+carga+frequência)
@@ -31,6 +33,7 @@ airflow/
 ├── README.md                                 # Guia do Repositório
 ├── .env                                      # Variáveis de ambiente locais (NÃO versionar)
 └── .env.example                              # Exemplo de variáveis para outros usuários
+```
 
 ⚙️ Como subir os ambientes Dev e PRD localmente
 
