@@ -40,78 +40,74 @@ airflow/
 
 ## ⚙️ Como subir os ambientes Dev e PRD localmente
 
-O projeto foi configurado para suportar ambientes Dev e PRD usando Docker Compose. Cada ambiente lê automaticamente o JSON correspondente (dev.json ou prd.json) das DAGs com base na variável de ambiente ENVIRONMENT.
-Subir o ambiente Dev
+O projeto suporta ambientes Dev e PRD usando Docker Compose. Cada ambiente lê automaticamente o JSON correspondente (dev.json ou prd.json) das DAGs com base na variável de ambiente ENVIRONMENT.
 
-### No diretório raiz do projeto
+### 1️⃣ Subir o ambiente Dev
+
+No diretório raiz do projeto, execute:
+
+```bash
 docker compose up -d airflow-dev-webserver airflow-dev-scheduler airflow-dev-worker airflow-dev-triggerer
+```
+- Webserver Dev disponível em: http://localhost:8080
+- Variável de ambiente ENVIRONMENT=dev faz com que as DAGs leiam o dev.json.
 
-    Webserver Dev disponível em: http://localhost:8080
+### 2️⃣ Subir o ambiente PRD
 
-    Variável de ambiente ENVIRONMENT=dev faz com que as DAGs leiam o dev.json.
+No diretório raiz do projeto, execute:
 
-Subir o ambiente PRD
-
-### No diretório raiz do projeto
+```bash
 docker compose up -d airflow-prd-webserver airflow-prd-scheduler airflow-prd-worker airflow-prd-triggerer
+```
+- Webserver Prd disponível em: http://localhost:8081
+- Variável de ambiente ENVIRONMENT=prd faz com que as DAGs leiam o prd.json.
 
-    Webserver PRD disponível em: http://localhost:8081
+### 3️⃣ Parar os containers
 
-    Variável de ambiente ENVIRONMENT=prd faz com que as DAGs leiam o prd.json.
-
-### Parar os containers
-
+```bash
 docker compose down
+```
+- Para reiniciar qualquer ambiente, basta executar novamente os comandos 1️⃣ ou 2️⃣.
+- Os logs permanecem na pasta logs/ (não versionada).
 
-    Para reiniciar qualquer ambiente, basta executar novamente os comandos acima.
+## 📝 Notas importantes
 
-    Os logs permanecem na pasta logs/ (não versionada).
+- Cada DAG deve ter `dev.json` e `prd.json` dentro da pasta da DAG, seguindo o padrão `<dag_context_load_frequency>`.  
+- A DAG lê automaticamente o JSON correto com base na variável de ambiente `ENVIRONMENT`.  
+- Novas DAGs podem ser adicionadas sem alterar o docker-compose, desde que sigam a estrutura de pasta e JSON.  
+- Mantenha a pasta `logs/` no `.gitignore` para não versionar arquivos temporários.  
+- Use `.env` para variáveis de ambiente locais (como senhas ou chaves), e não versionar esse arquivo.
 
-## 🔹 Notas importantes
+### Exemplos de JSON
 
-    Cada DAG deve ter dev.json e prd.json dentro da pasta da DAG, seguindo o padrão <dag_context_load_frequency>.
-
-    A DAG lê automaticamente o JSON correto com base na variável de ambiente ENVIRONMENT.
-
-    Novas DAGs podem ser adicionadas sem alterar o docker-compose, desde que sigam a estrutura de pasta e JSON.
-
-    Mantenha a pasta logs/ no .gitignore para não versionar arquivos temporários.
-
-    Use .env para variáveis de ambiente locais (como senhas ou chaves), e não versionar esse arquivo.
-
-## 🔹 Exemplo de dev.json e prd.json
-
-// dev.json
+#### dev.json
 ```json
 {
-    "dag_context_load_frequency": {
-        "schedule_interval": null,
-        "raw_project": "sandbox-usuario",
-        "bronze_project": "sandbox-usuario",
-        "silver_project": "sandbox-usuario",
-        "gold_project": "sandbox-usuario"
-    }
+  "dag_context_load_frequency": {
+    "schedule_interval": null,
+    "raw_project": "sandbox-usuario",
+    "bronze_project": "sandbox-usuario",
+    "silver_project": "sandbox-usuario",
+    "gold_project": "sandbox-usuario"
+  }
 }
 ```
 
-// prd.json
+#### prd.json
 ```json
 {
-    "dag_context_load_frequency": {
-        "schedule_interval": "0 8 * * *",
-        "raw_project": "raw-layer",
-        "bronze_project": "bronze-layer",
-        "silver_project": "silver-layer",
-        "gold_project": "gold-layer"
-    }
+  "dag_context_load_frequency": {
+    "schedule_interval": "0 8 * * *",
+    "raw_project": "raw-layer",
+    "bronze_project": "bronze-layer",
+    "silver_project": "silver-layer",
+    "gold_project": "gold-layer"
+  }
 }
 ```
-    A DAG deve ler dinamicamente o JSON correto com base na variável ENVIRONMENT definida no container.
 
-## 🔹 Próximos passos sugeridos
+### Próximos passos sugeridos
 
-    Adicionar suas DAGs seguindo o padrão <dag_context_load_frequency>.
-
-    Testar a leitura dinâmica de dev.json e prd.json.
-
-    Preparar CI/CD futuro, onde cada ambiente poderá ser atualizado separadamente.
+- Adicionar suas DAGs seguindo o padrão <dag_context_load_frequency>.
+- Testar a leitura dinâmica de dev.json e prd.json.
+- Preparar CI/CD futuro, onde cada ambiente poderá ser atualizado separadamente.
