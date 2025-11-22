@@ -27,7 +27,7 @@ airflow/
 │   └── <dag_context_load_frequency>/         # Pasta de cada DAG (padrão: dag+contexto+carga+frequência)
 │       ├── <dag_context_load_frequency>.py   # Código da DAG
 │       ├── dev.json                          # Configurações do ambiente Dev
-│       └── prd.json                          # Configurações do ambiente PRD
+│       └── prd.json                          # Configurações do ambiente Prd
 ├── logs/                                     # Logs gerados pelo Airflow (ignorado no Git)
 ├── plugins/                                  # Plugins opcionais
 ├── requirements.txt                          # Dependências extras do Airflow (opcional)
@@ -38,9 +38,9 @@ airflow/
 ```
 
 
-## ⚙️ Como subir os ambientes Dev e PRD localmente
+## ⚙️ Como subir os ambientes Dev e Prd localmente
 
-O projeto suporta ambientes Dev e PRD usando Docker Compose. Cada ambiente lê automaticamente o JSON correspondente (dev.json ou prd.json) das DAGs com base na variável de ambiente ENVIRONMENT.
+O projeto suporta ambientes Dev e Prd usando Docker Compose. Cada ambiente lê automaticamente o JSON correspondente (dev.json ou prd.json) das DAGs com base na variável de ambiente ENVIRONMENT.
 
 ### 1️⃣ Subir o ambiente Dev
 
@@ -52,7 +52,7 @@ docker compose up -d airflow-dev-webserver airflow-dev-scheduler airflow-dev-wor
 - Webserver Dev disponível em: http://localhost:8080
 - Variável de ambiente ENVIRONMENT=dev faz com que as DAGs leiam o dev.json.
 
-### 2️⃣ Subir o ambiente PRD
+### 2️⃣ Subir o ambiente Prd
 
 No diretório raiz do projeto, execute:
 
