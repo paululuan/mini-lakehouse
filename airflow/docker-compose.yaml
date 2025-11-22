@@ -13,6 +13,7 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
+    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
     R2_ACCESS_KEY: ${R2_ACCESS_KEY}
     R2_SECRET_KEY: ${R2_SECRET_KEY}
     R2_BUCKET: ${R2_BUCKET}
@@ -61,6 +62,26 @@ services:
     restart: always
     ports:
       - "8083:8080"
+
+  # ---------- Airflow Init ----------
+  airflow-init:
+    <<: *airflow-common
+    environment:
+      <<: *airflow-common-env
+      _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME}
+      _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD}
+      _AIRFLOW_WWW_USER_EMAIL: ${_AIRFLOW_WWW_USER_EMAIL}
+    entrypoint: /bin/bash
+    command: -c "airflow db init && airflow users create \
+                  --username $${_AIRFLOW_WWW_USER_USERNAME} \
+                  --password $${_AIRFLOW_WWW_USER_PASSWORD} \
+                  --firstname Airflow \
+                  --lastname Admin \
+                  --role Admin \
+                  --email $${_AIRFLOW_WWW_USER_EMAIL}"
+    user: "0:0"
+    depends_on:
+      - postgres
 
   # ---------- Airflow Dev ----------
   airflow-dev-webserver:

@@ -1,5 +1,6 @@
 {
-    "dag_exemplo_load_ondemand": {
+    "dag_variables": {
+        "dag_id": "dag_exemplo_load_ondemand",
         "schedule_interval": null,
         "raw_project": "sandbox-luan",
         "bronze_project": "sandbox-luan",

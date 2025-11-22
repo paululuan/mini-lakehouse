@@ -1,5 +1,6 @@
 {
-    "dag_exemplo_load_ondemand": {
+     "dag_variables": {
+        "dag_id": "dag_exemplo_load_ondemand",
         "schedule_interval": null,
         "raw_project": "raw-layer",
         "bronze_project": "bronze-layer",
