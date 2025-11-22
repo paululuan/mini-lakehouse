@@ -1,8 +1,11 @@
-version: '3.9'
+# Arquivo: docker-compose.yml
 
 # ---------- Configurações comuns do Airflow ----------
 x-airflow-common: &airflow-common
-  image: apache/airflow:2.10.3
+  # 🚨 MUDANÇA PRINCIPAL: Agora constrói a imagem localmente usando o Dockerfile da raiz
+  build: . 
+  # A imagem 'apache/airflow:2.10.3' agora é apenas a base no Dockerfile
+
   environment:
     &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
@@ -13,7 +16,10 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
-    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
+    # O campo _PIP_ADDITIONAL_REQUIREMENTS deve estar vazio ou ausente, pois as libs estão no Dockerfile
+    _PIP_ADDITIONAL_REQUIREMENTS: 
+    
+    # Variáveis do Cloudflare R2
     R2_ACCESS_KEY: ${R2_ACCESS_KEY}
     R2_SECRET_KEY: ${R2_SECRET_KEY}
     R2_BUCKET: ${R2_BUCKET}
@@ -23,10 +29,11 @@ x-airflow-common: &airflow-common
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins
     - ./config:/opt/airflow/config
-  user: "50000:0"
+  # O campo user: "50000:0" deve ser definido individualmente onde necessário,
+  # ou omitido para usar o padrão da imagem que é o usuário 'airflow'.
 
 services:
-  # ---------- Banco de dados ----------
+  # ---------- Banco de dados, Redis, Adminer (Sem Alteração) ----------
   postgres:
     image: postgres:13
     environment:
@@ -44,7 +51,6 @@ services:
       retries: 5
       start_period: 5s
 
-  # ---------- Broker ----------
   redis:
     image: redis:7.2-bookworm
     expose:
@@ -56,14 +62,13 @@ services:
       retries: 5
       start_period: 5s
 
-  # ---------- Adminer ----------
   adminer:
     image: adminer
     restart: always
     ports:
       - "8083:8080"
 
-  # ---------- Airflow Init ----------
+  # ---------- Airflow Init (Mantido, user: 0:0 é necessário para init) ----------
   airflow-init:
     <<: *airflow-common
     environment:
@@ -83,88 +88,95 @@ services:
     depends_on:
       - postgres
 
-  # ---------- Airflow Dev ----------
+  # ---------- Airflow Dev Webserver (Limpo) ----------
   airflow-dev-webserver:
     <<: *airflow-common
     environment:
       <<: *airflow-common-env
       ENVIRONMENT: dev
-    command: webserver
+    command: airflow webserver
     ports:
       - "8080:8080"
     depends_on:
       - postgres
       - redis
+    # user: "50000:0" (Opcional, a imagem usa o padrão 'airflow')
 
+  # ---------- Airflow Dev Scheduler (Limpo) ----------
   airflow-dev-scheduler:
     <<: *airflow-common
     environment:
       <<: *airflow-common-env
       ENVIRONMENT: dev
-    command: scheduler
+    command: airflow scheduler # Comando padrão e limpo
     depends_on:
       - postgres
       - redis
 
+  # ---------- Airflow Dev Worker (Limpo) ----------
   airflow-dev-worker:
     <<: *airflow-common
     environment:
       <<: *airflow-common-env
       ENVIRONMENT: dev
-    command: celery worker
+    command: airflow celery worker # Comando padrão e limpo
     depends_on:
       - postgres
       - redis
 
+  # ---------- Airflow Dev Triggerer (Limpo) ----------
   airflow-dev-triggerer:
     <<: *airflow-common
     environment:
       <<: *airflow-common-env
       ENVIRONMENT: dev
-    command: triggerer
+    command: airflow triggerer
     depends_on:
       - postgres
       - redis
 
-  # ---------- Airflow PRD ----------
+  # ---------- Airflow PRD Webserver (Limpo) ----------
   airflow-prd-webserver:
     <<: *airflow-common
     environment:
       <<: *airflow-common-env
       ENVIRONMENT: prd
-    command: webserver
+    command: airflow webserver
     ports:
       - "8081:8080"
     depends_on:
       - postgres
       - redis
 
+  # ---------- Airflow PRD Scheduler (Limpo) ----------
   airflow-prd-scheduler:
     <<: *airflow-common
     environment:
       <<: *airflow-common-env
       ENVIRONMENT: prd
-    command: scheduler
+    command: airflow scheduler # Comando padrão e limpo
     depends_on:
       - postgres
       - redis
 
+  # ---------- Airflow PRD Worker (Limpo) ----------
   airflow-prd-worker:
     <<: *airflow-common
     environment:
       <<: *airflow-common-env
       ENVIRONMENT: prd
-    command: celery worker
+    command: airflow celery worker # Comando padrão e limpo
     depends_on:
       - postgres
       - redis
 
+  # ---------- Airflow PRD Triggerer (Limpo) ----------
   airflow-prd-triggerer:
     <<: *airflow-common
     environment:
       <<: *airflow-common-env
       ENVIRONMENT: prd
-    command: triggerer
+    command: airflow triggerer
     depends_on:
       - postgres
       - redis

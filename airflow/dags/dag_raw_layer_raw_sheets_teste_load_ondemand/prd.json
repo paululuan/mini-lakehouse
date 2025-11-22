@@ -7,7 +7,7 @@
         "silver_project": "silver-layer",
         "gold_project": "gold-layer",
         "service_account_file": "/opt/airflow/config/airflow-gdrive-credentials.json",
-        "dest_folder": "/opt/airflow/dags/mini-lakehouse/raw-layer/raw_sheets_teste",
+        "dest_folder": "/opt/airflow/dags/mini-lakehouse/raw-layer/raw_sheets/teste",
         "drive_folder_id": "1SVBnzARVrx09xcmbSPI9wdPm4mMQMcVm"
     }
 }

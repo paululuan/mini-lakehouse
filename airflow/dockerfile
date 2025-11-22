@@ -1,0 +1,45 @@
+# Arquivo: Dockerfile
+
+# MUDANÇA AQUI: Usa uma imagem Python/Debian mais recente e estável como base
+FROM python:3.11-slim-bookworm
+
+# Agora precisamos instalar o usuário 'airflow' e suas dependências.
+# O Airflow requer o usuário UID 50000 e alguns pacotes de sistema.
+
+USER root
+# Instala dependências do Airflow (incluindo o cliente Postgres) e as ferramentas de build
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    ca-certificates \
+    python3-dev \
+    gosu \
+    # Cria o usuário Airflow (UID 50000)
+    && useradd -ms /bin/bash -u 50000 airflow \
+    && apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Configura o ambiente
+ENV AIRFLOW_HOME=/usr/local/airflow
+WORKDIR ${AIRFLOW_HOME}
+
+# 2. Instalação das Dependências Python (Versão simplificada)
+USER airflow
+RUN pip install --no-cache-dir apache-airflow==2.10.3 --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.10.3/constraints-3.11.txt"
+# E agora, suas dependências:
+RUN pip install --no-cache-dir \
+    botocore \
+    gspread \
+    google-api-python-client \
+    google-auth \
+    google-auth-httplib2 \
+    google-auth-oauthlib \
+    pandas \
+    pyarrow \
+    apache-airflow-providers-google \
+    apache-airflow-providers-http \
+    apache-airflow-providers-postgres \
+    boto3
+
+ENV PATH="/home/airflow/.local/bin:/usr/local/bin:$PATH"
