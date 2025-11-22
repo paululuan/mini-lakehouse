@@ -10,21 +10,95 @@ Antes de começar, instale:
 - Docker Compose v2  
 - Git
 
-Em sistemas Linux, use:
+Em sistemas Linux, verifique as versões instaladas:
 
 ```bash
 docker --version
 docker compose version
-```
 
-## 📂 Estrutura do Projeto
+📂 Estrutura do Projeto
 
-```bash
 airflow/
-├── dags/                 # Suas DAGs ficam aqui
-├── logs/                 # Logs gerados pelo Airflow (ignorado no Git)
-├── plugins/              # Plugins opcionais
-├── requirements.txt      # Dependências extras do Airflow (opcional)
-├── docker-compose.yaml   # Stack oficial da Apache
-├── .env                  # Variáveis de ambiente locais (NÃO versionar)
-└── .env.example          # Exemplo de variáveis para outros usuários
+├── dags/                                     # Suas DAGs ficam aqui
+│   └── <dag_context_load_frequency>/        # Pasta de cada DAG (padrão: dag+contexto+carga+frequência)
+│       ├── <dag_context_load_frequency>.py  # Código da DAG
+│       ├── dev.json                          # Configurações do ambiente Dev
+│       └── prd.json                          # Configurações do ambiente PRD
+├── logs/                                     # Logs gerados pelo Airflow (ignorado no Git)
+├── plugins/                                  # Plugins opcionais
+├── requirements.txt                          # Dependências extras do Airflow (opcional)
+├── docker-compose.yml                        # Stack oficial da Apache Airflow
+├── README.md                                 # Guia do Repositório
+├── .env                                      # Variáveis de ambiente locais (NÃO versionar)
+└── .env.example                              # Exemplo de variáveis para outros usuários
+
+⚙️ Como subir os ambientes Dev e PRD localmente
+
+O projeto foi configurado para suportar ambientes Dev e PRD usando Docker Compose. Cada ambiente lê automaticamente o JSON correspondente (dev.json ou prd.json) das DAGs com base na variável de ambiente ENVIRONMENT.
+Subir o ambiente Dev
+
+# No diretório raiz do projeto
+docker compose up -d airflow-dev-webserver airflow-dev-scheduler airflow-dev-worker airflow-dev-triggerer
+
+    Webserver Dev disponível em: http://localhost:8080
+
+    Variável de ambiente ENVIRONMENT=dev faz com que as DAGs leiam o dev.json.
+
+Subir o ambiente PRD
+
+# No diretório raiz do projeto
+docker compose up -d airflow-prd-webserver airflow-prd-scheduler airflow-prd-worker airflow-prd-triggerer
+
+    Webserver PRD disponível em: http://localhost:8081
+
+    Variável de ambiente ENVIRONMENT=prd faz com que as DAGs leiam o prd.json.
+
+Parar os containers
+
+docker compose down
+
+    Para reiniciar qualquer ambiente, basta executar novamente os comandos acima.
+
+    Os logs permanecem na pasta logs/ (não versionada).
+
+🔹 Notas importantes
+
+    Cada DAG deve ter dev.json e prd.json dentro da pasta da DAG, seguindo o padrão <dag_context_load_frequency>.
+
+    A DAG lê automaticamente o JSON correto com base na variável de ambiente ENVIRONMENT.
+
+    Novas DAGs podem ser adicionadas sem alterar o docker-compose, desde que sigam a estrutura de pasta e JSON.
+
+    Mantenha a pasta logs/ no .gitignore para não versionar arquivos temporários.
+
+    Use .env para variáveis de ambiente locais (como senhas ou chaves), e não versionar esse arquivo.
+
+🔹 Exemplo de dev.json e prd.json
+
+// dev.json
+{
+  "schedule_interval": null,
+  "raw_project": "sandbox-usuario",
+  "bronze_project": "sandbox-usuario",
+  "silver_project": "sandbox-usuario",
+  "gold_project": "sandbox-usuario"
+}
+
+// prd.json
+{
+  "schedule_interval": "0 8 * * *",
+  "raw_project": "raw-layer-prd",
+  "bronze_project": "bronze-layer-prd",
+  "silver_project": "silver-layer-prd",
+  "gold_project": "gold-layer-prd"
+}
+
+    A DAG deve ler dinamicamente o JSON correto com base na variável ENVIRONMENT definida no container.
+
+🔹 Próximos passos sugeridos
+
+    Adicionar suas DAGs seguindo o padrão <dag_context_load_frequency>.
+
+    Testar a leitura dinâmica de dev.json e prd.json.
+
+    Preparar CI/CD futuro, onde cada ambiente poderá ser atualizado separadamente.
