@@ -17,7 +17,7 @@ docker --version
 docker compose version
 ```
 
-📂 Estrutura do Projeto
+## 📂 Estrutura do Projeto
 
 ```
 airflow/
@@ -35,12 +35,12 @@ airflow/
 └── .env.example                              # Exemplo de variáveis para outros usuários
 ```
 
-⚙️ Como subir os ambientes Dev e PRD localmente
+## ⚙️ Como subir os ambientes Dev e PRD localmente
 
 O projeto foi configurado para suportar ambientes Dev e PRD usando Docker Compose. Cada ambiente lê automaticamente o JSON correspondente (dev.json ou prd.json) das DAGs com base na variável de ambiente ENVIRONMENT.
 Subir o ambiente Dev
 
-# No diretório raiz do projeto
+### No diretório raiz do projeto
 docker compose up -d airflow-dev-webserver airflow-dev-scheduler airflow-dev-worker airflow-dev-triggerer
 
     Webserver Dev disponível em: http://localhost:8080
@@ -49,7 +49,7 @@ docker compose up -d airflow-dev-webserver airflow-dev-scheduler airflow-dev-wor
 
 Subir o ambiente PRD
 
-# No diretório raiz do projeto
+### No diretório raiz do projeto
 docker compose up -d airflow-prd-webserver airflow-prd-scheduler airflow-prd-worker airflow-prd-triggerer
 
     Webserver PRD disponível em: http://localhost:8081
