@@ -1,0 +1,9 @@
+{
+    "dag_exemplo_load_ondemand": {
+        "schedule_interval": null,
+        "raw_project": "raw-layer",
+        "bronze_project": "bronze-layer",
+        "silver_project": "silver-layer",
+        "gold_project": "gold-layer"
+    }
+}
