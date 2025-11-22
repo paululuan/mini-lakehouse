@@ -13,11 +13,13 @@ x-airflow-common: &airflow-common
     AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/airflow
     AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
     AIRFLOW__CORE__FERNET_KEY: ''
+    AWS_NO_VERIFY_SSL: 'true'
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
     # O campo _PIP_ADDITIONAL_REQUIREMENTS deve estar vazio ou ausente, pois as libs estão no Dockerfile
-    _PIP_ADDITIONAL_REQUIREMENTS: 
+    _PIP_ADDITIONAL_REQUIREMENTS:
+    PYTHONPATH: /home/airflow/.local/lib/python3.11/site-packages
     
     # Variáveis do Cloudflare R2
     R2_ACCESS_KEY: ${R2_ACCESS_KEY}
@@ -25,10 +27,10 @@ x-airflow-common: &airflow-common
     R2_BUCKET: ${R2_BUCKET}
     R2_ENDPOINT: ${R2_ENDPOINT}
   volumes:
-    - ./dags:/opt/airflow/dags
-    - ./logs:/opt/airflow/logs
-    - ./plugins:/opt/airflow/plugins
-    - ./config:/opt/airflow/config
+    - ./dags:/usr/local/airflow/dags   # Corrigido
+    - ./logs:/usr/local/airflow/logs   # Corrigido
+    - ./plugins:/usr/local/airflow/plugins # Corrigido
+    - ./config:/usr/local/airflow/config   # Corrigido
   # O campo user: "50000:0" deve ser definido individualmente onde necessário,
   # ou omitido para usar o padrão da imagem que é o usuário 'airflow'.
 
@@ -77,7 +79,9 @@ services:
       _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD}
       _AIRFLOW_WWW_USER_EMAIL: ${_AIRFLOW_WWW_USER_EMAIL}
     entrypoint: /bin/bash
-    command: -c "airflow db init && airflow users create \
+    command: -c "chown -R airflow:root /usr/local/airflow/logs /usr/local/airflow/dags && \
+                  airflow db init && \
+                  airflow users create \
                   --username $${_AIRFLOW_WWW_USER_USERNAME} \
                   --password $${_AIRFLOW_WWW_USER_PASSWORD} \
                   --firstname Airflow \
@@ -100,6 +104,7 @@ services:
     depends_on:
       - postgres
       - redis
+      - airflow-init
     # user: "50000:0" (Opcional, a imagem usa o padrão 'airflow')
 
   # ---------- Airflow Dev Scheduler (Limpo) ----------
@@ -112,6 +117,8 @@ services:
     depends_on:
       - postgres
       - redis
+      - airflow-init
+    user: "0:0"
 
   # ---------- Airflow Dev Worker (Limpo) ----------
   airflow-dev-worker:
@@ -123,6 +130,8 @@ services:
     depends_on:
       - postgres
       - redis
+      - airflow-init
+    user: "0:0"
 
   # ---------- Airflow Dev Triggerer (Limpo) ----------
   airflow-dev-triggerer:
@@ -134,6 +143,8 @@ services:
     depends_on:
       - postgres
       - redis
+      - airflow-init
+    user: "0:0"
 
   # ---------- Airflow PRD Webserver (Limpo) ----------
   airflow-prd-webserver:
@@ -147,6 +158,8 @@ services:
     depends_on:
       - postgres
       - redis
+      - airflow-init
+    user: "0:0"
 
   # ---------- Airflow PRD Scheduler (Limpo) ----------
   airflow-prd-scheduler:
@@ -158,6 +171,8 @@ services:
     depends_on:
       - postgres
       - redis
+      - airflow-init
+    user: "0:0"
 
   # ---------- Airflow PRD Worker (Limpo) ----------
   airflow-prd-worker:
@@ -169,6 +184,8 @@ services:
     depends_on:
       - postgres
       - redis
+      - airflow-init
+    user: "0:0"
 
   # ---------- Airflow PRD Triggerer (Limpo) ----------
   airflow-prd-triggerer:
@@ -180,6 +197,8 @@ services:
     depends_on:
       - postgres
       - redis
+      - airflow-init
+    user: "0:0"
 
 volumes:
   postgres-db-volume:

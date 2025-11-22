@@ -26,6 +26,7 @@ SCHEDULE_INTERVAL = dag_config.get("schedule_interval", None)
 SERVICE_ACCOUNT_FILE = dag_config['service_account_file']
 DRIVE_FOLDER_ID = dag_config['drive_folder_id']
 R2_BUCKET = os.environ.get("R2_BUCKET")
+R2_FOLDER_PATH = dag_config['r2_folder_path']
 
 # Verifica se variáveis críticas estão presentes
 if not all([SERVICE_ACCOUNT_FILE, DRIVE_FOLDER_ID]):
@@ -36,11 +37,11 @@ if not all([SERVICE_ACCOUNT_FILE, DRIVE_FOLDER_ID]):
 # com os parâmetros específicos de cada fonte/destino.
 
 def carregar_dados_teste(**kwargs):
-    """ Orquestra a carga do Google Sheet 'Relatorio_Vendas_Mensal' para R2. """
+    """ Orquestra a carga do Google Sheet 'teste' para R2. """
     return execute_raw_load_from_sheet(
         bucket_name=R2_BUCKET,
         search_name='teste',        
-        r2_folder_path="raw/-layer/raw_sheets/teste/",          
+        r2_folder_path=R2_FOLDER_PATH,          
         drive_folder_id=DRIVE_FOLDER_ID,
         service_account_file=SERVICE_ACCOUNT_FILE
     )
