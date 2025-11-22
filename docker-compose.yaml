@@ -1,0 +1,138 @@
+version: '3.9'
+
+x-airflow-common: &airflow-common
+  image: apache/airflow:2.10.3
+  environment:
+    &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+    AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/airflow
+    AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
+    AIRFLOW__CORE__FERNET_KEY: ''
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./logs:/opt/airflow/logs
+    - ./plugins:/opt/airflow/plugins
+    - ./config:/opt/airflow/config
+  user: "50000:0"
+
+services:
+
+  # --------- Banco de dados e broker ----------
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+
+  redis:
+    image: redis:7.2-bookworm
+    expose:
+      - 6379
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+
+  # --------- Airflow Dev ----------
+  airflow-dev-webserver:
+    <<: *airflow-common
+    environment:
+      <<: *airflow-common-env
+      ENVIRONMENT: dev
+    command: webserver
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - redis
+
+  airflow-dev-scheduler:
+    <<: *airflow-common
+    environment:
+      <<: *airflow-common-env
+      ENVIRONMENT: dev
+    command: scheduler
+    depends_on:
+      - postgres
+      - redis
+
+  airflow-dev-worker:
+    <<: *airflow-common
+    environment:
+      <<: *airflow-common-env
+      ENVIRONMENT: dev
+    command: celery worker
+    depends_on:
+      - postgres
+      - redis
+
+  airflow-dev-triggerer:
+    <<: *airflow-common
+    environment:
+      <<: *airflow-common-env
+      ENVIRONMENT: dev
+    command: triggerer
+    depends_on:
+      - postgres
+      - redis
+
+  # --------- Airflow PRD ----------
+  airflow-prd-webserver:
+    <<: *airflow-common
+    environment:
+      <<: *airflow-common-env
+      ENVIRONMENT: prd
+    command: webserver
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
+      - redis
+
+  airflow-prd-scheduler:
+    <<: *airflow-common
+    environment:
+      <<: *airflow-common-env
+      ENVIRONMENT: prd
+    command: scheduler
+    depends_on:
+      - postgres
+      - redis
+
+  airflow-prd-worker:
+    <<: *airflow-common
+    environment:
+      <<: *airflow-common-env
+      ENVIRONMENT: prd
+    command: celery worker
+    depends_on:
+      - postgres
+      - redis
+
+  airflow-prd-triggerer:
+    <<: *airflow-common
+    environment:
+      <<: *airflow-common-env
+      ENVIRONMENT: prd
+    command: triggerer
+    depends_on:
+      - postgres
+      - redis
+
+volumes:
+  postgres-db-volume:
