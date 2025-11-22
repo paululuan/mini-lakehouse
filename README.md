@@ -2,6 +2,7 @@
 
 Este repositório contém uma configuração pronta para rodar o **Apache Airflow 2.x** utilizando **Docker Compose**, seguindo as melhores práticas da Apache Foundation.
 
+
 ## 📌 Requisitos
 
 Antes de começar, instale:
@@ -17,9 +18,10 @@ docker --version
 docker compose version
 ```
 
+
 ## 📂 Estrutura do Projeto
 
-```
+```bash
 airflow/
 ├── dags/                                     # Suas DAGs ficam aqui
 │   └── <dag_context_load_frequency>/         # Pasta de cada DAG (padrão: dag+contexto+carga+frequência)
@@ -34,6 +36,7 @@ airflow/
 ├── .env                                      # Variáveis de ambiente locais (NÃO versionar)
 └── .env.example                              # Exemplo de variáveis para outros usuários
 ```
+
 
 ## ⚙️ Como subir os ambientes Dev e PRD localmente
 
@@ -56,7 +59,7 @@ docker compose up -d airflow-prd-webserver airflow-prd-scheduler airflow-prd-wor
 
     Variável de ambiente ENVIRONMENT=prd faz com que as DAGs leiam o prd.json.
 
-Parar os containers
+### Parar os containers
 
 docker compose down
 
@@ -64,7 +67,7 @@ docker compose down
 
     Os logs permanecem na pasta logs/ (não versionada).
 
-🔹 Notas importantes
+## 🔹 Notas importantes
 
     Cada DAG deve ter dev.json e prd.json dentro da pasta da DAG, seguindo o padrão <dag_context_load_frequency>.
 
@@ -76,7 +79,7 @@ docker compose down
 
     Use .env para variáveis de ambiente locais (como senhas ou chaves), e não versionar esse arquivo.
 
-🔹 Exemplo de dev.json e prd.json
+## 🔹 Exemplo de dev.json e prd.json
 
 // dev.json
 ```json
@@ -95,7 +98,7 @@ docker compose down
 ```json
 {
     "dag_context_load_frequency": {
-        "schedule_interval": null,
+        "schedule_interval": "0 8 * * *",
         "raw_project": "raw-layer",
         "bronze_project": "bronze-layer",
         "silver_project": "silver-layer",
@@ -105,7 +108,7 @@ docker compose down
 ```
     A DAG deve ler dinamicamente o JSON correto com base na variável ENVIRONMENT definida no container.
 
-🔹 Próximos passos sugeridos
+## 🔹 Próximos passos sugeridos
 
     Adicionar suas DAGs seguindo o padrão <dag_context_load_frequency>.
 
