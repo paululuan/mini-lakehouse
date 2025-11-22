@@ -30,6 +30,8 @@ services:
       POSTGRES_DB: airflow
     volumes:
       - postgres-db-volume:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
     restart: always
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "airflow"]
@@ -48,6 +50,13 @@ services:
       retries: 5
       start_period: 5s
 
+  # --------- Adminer para acessar Postgres via navegador ----------
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8083:8080"   # Acesse em http://localhost:8083
+
   # --------- Airflow Dev ----------
   airflow-dev-webserver:
     <<: *airflow-common
@@ -56,7 +65,7 @@ services:
       ENVIRONMENT: dev
     command: webserver
     ports:
-      - "8080:8080"
+      - "8080:8080"   # Acesse em http://localhost:8080
     depends_on:
       - postgres
       - redis
@@ -99,7 +108,7 @@ services:
       ENVIRONMENT: prd
     command: webserver
     ports:
-      - "8081:8080"
+      - "8081:8080"   # Acesse em http://localhost:8081
     depends_on:
       - postgres
       - redis
