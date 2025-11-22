@@ -1,5 +1,6 @@
 version: '3.9'
 
+# ---------- Configurações comuns do Airflow ----------
 x-airflow-common: &airflow-common
   image: apache/airflow:2.10.3
   environment:
@@ -12,6 +13,10 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
+    R2_ACCESS_KEY: ${R2_ACCESS_KEY}
+    R2_SECRET_KEY: ${R2_SECRET_KEY}
+    R2_BUCKET: ${R2_BUCKET}
+    R2_ENDPOINT: ${R2_ENDPOINT}
   volumes:
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
@@ -20,8 +25,7 @@ x-airflow-common: &airflow-common
   user: "50000:0"
 
 services:
-
-  # --------- Banco de dados e broker ----------
+  # ---------- Banco de dados ----------
   postgres:
     image: postgres:13
     environment:
@@ -39,6 +43,7 @@ services:
       retries: 5
       start_period: 5s
 
+  # ---------- Broker ----------
   redis:
     image: redis:7.2-bookworm
     expose:
@@ -50,14 +55,14 @@ services:
       retries: 5
       start_period: 5s
 
-  # --------- Adminer para acessar Postgres via navegador ----------
+  # ---------- Adminer ----------
   adminer:
     image: adminer
     restart: always
     ports:
-      - "8083:8080"   # Acesse em http://localhost:8083
+      - "8083:8080"
 
-  # --------- Airflow Dev ----------
+  # ---------- Airflow Dev ----------
   airflow-dev-webserver:
     <<: *airflow-common
     environment:
@@ -65,7 +70,7 @@ services:
       ENVIRONMENT: dev
     command: webserver
     ports:
-      - "8080:8080"   # Acesse em http://localhost:8080
+      - "8080:8080"
     depends_on:
       - postgres
       - redis
@@ -100,7 +105,7 @@ services:
       - postgres
       - redis
 
-  # --------- Airflow PRD ----------
+  # ---------- Airflow PRD ----------
   airflow-prd-webserver:
     <<: *airflow-common
     environment:
@@ -108,7 +113,7 @@ services:
       ENVIRONMENT: prd
     command: webserver
     ports:
-      - "8081:8080"   # Acesse em http://localhost:8081
+      - "8081:8080"
     depends_on:
       - postgres
       - redis
