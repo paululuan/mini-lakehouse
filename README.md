@@ -15,7 +15,11 @@ Em sistemas Linux, use:
 ```bash
 docker --version
 docker compose version
+```
 
+## 📂 Estrutura do Projeto
+
+```bash
 airflow/
 ├── dags/                 # Suas DAGs ficam aqui
 ├── logs/                 # Logs gerados pelo Airflow (ignorado no Git)
