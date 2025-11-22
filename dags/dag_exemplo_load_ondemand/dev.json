@@ -1,9 +1,0 @@
-{
-    "dag_exemplo_load_ondemand": {
-        "schedule_interval": null,
-        "raw_project": "sandbox-luan",
-        "bronze_project": "sandbox-luan",
-        "silver_project": "sandbox-luan",
-        "gold_project": "sandbox-luan"
-    }
-}
