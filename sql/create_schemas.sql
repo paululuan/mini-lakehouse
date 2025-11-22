@@ -12,4 +12,4 @@ GRANT USAGE ON SCHEMA "raw-layer" TO airflow;
 GRANT USAGE ON SCHEMA "bronze-layer" TO airflow;
 GRANT USAGE ON SCHEMA "silver-layer" TO airflow;
 GRANT USAGE ON SCHEMA "gold-layer" TO airflow;
-GRANT USAGE, CREATE ON SCHEMA "sandbox-luan" TO airflow;
+GRANT USAGE ON SCHEMA "sandbox-luan" TO airflow;
